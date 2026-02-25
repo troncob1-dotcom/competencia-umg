@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competencia de Equipos – Desarrollo Humano</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060810;
+  --surface: #0c0f1a;
+  --card:    #111525;
+  --card2:   #161b2e;
+  --border:  #1e2540;
+  --text:    #eceffc;
+  --muted:   #4a5272;
+
+  --azul:   #2563eb;
+  --verde:  #059669;
+  --amarillo: #d97706;
+  --rojo:   #dc2626;
+  --rosado: #db2777;
+
+  --azul-l:   #60a5fa;
+  --verde-l:  #34d399;
+  --amarillo-l: #fbbf24;
+  --rojo-l:   #f87171;
+  --rosado-l: #f472b6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════
+   SCREENS
+══════════════════════════════════ */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ══════════════════════════════════
+   LOBBY
+══════════════════════════════════ */
+#lobby {
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(37,99,235,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 75%, rgba(219,39,119,0.07) 0%, transparent 55%);
+}
+
+.lobby-wrap { width: 100%; max-width: 900px; }
+
+.logo-row {
+  text-align: center;
+  margin-bottom: 44px;
+}
+.logo-row .eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 6px 18px;
+  border-radius: 100px;
+  margin-bottom: 18px;
+}
+.logo-row h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(38px, 7vw, 72px);
+  letter-spacing: 5px;
+  line-height: 0.92;
+  color: var(--text);
+}
+.logo-row h1 .hi { display: block; font-size: clamp(14px, 2.5vw, 22px); letter-spacing: 8px; color: var(--muted); font-family: 'Outfit', sans-serif; font-weight: 300; margin-bottom: 6px; }
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+@media(max-width:720px){ .teams-grid { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:480px){ .teams-grid { grid-template-columns: repeat(2,1fr); } }
+
+.team-setup-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 14px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.team-setup-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+}
+.team-setup-card:hover { transform: translateY(-3px); }
+
+.team-setup-card.c0 { border-color: rgba(96,165,250,0.35); }
+.team-setup-card.c0::before { background: var(--azul-l); }
+.team-setup-card.c1 { border-color: rgba(52,211,153,0.35); }
+.team-setup-card.c1::before { background: var(--verde-l); }
+.team-setup-card.c2 { border-color: rgba(251,191,36,0.35); }
+.team-setup-card.c2::before { background: var(--amarillo-l); }
+.team-setup-card.c3 { border-color: rgba(248,113,113,0.35); }
+.team-setup-card.c3::before { background: var(--rojo-l); }
+.team-setup-card.c4 { border-color: rgba(244,114,182,0.35); }
+.team-setup-card.c4::before { background: var(--rosado-l); }
+
+.team-color-dot {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  border: 3px solid rgba(255,255,255,0.15);
+}
+.c0 .team-color-dot { background: var(--azul); }
+.c1 .team-color-dot { background: var(--verde); }
+.c2 .team-color-dot { background: var(--amarillo); }
+.c3 .team-color-dot { background: var(--rojo); }
+.c4 .team-color-dot { background: var(--rosado); }
+
+.team-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.c0 .team-label { color: var(--azul-l); }
+.c1 .team-label { color: var(--verde-l); }
+.c2 .team-label { color: var(--amarillo-l); }
+.c3 .team-label { color: var(--rojo-l); }
+.c4 .team-label { color: var(--rosado-l); }
+
+.team-name-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 9px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.c0 .team-name-input:focus { border-color: var(--azul-l); }
+.c1 .team-name-input:focus { border-color: var(--verde-l); }
+.c2 .team-name-input:focus { border-color: var(--amarillo-l); }
+.c3 .team-name-input:focus { border-color: var(--rojo-l); }
+.c4 .team-name-input:focus { border-color: var(--rosado-l); }
+
+.start-btn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 6px 32px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(37,99,235,0.5); }
+
+/* ══════════════════════════════════
+   SCORE BAR
+══════════════════════════════════ */
+.scorebar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.score-cell {
+  flex: 1;
+  padding: 14px 10px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  position: relative;
+  transition: background 0.3s;
+}
+.score-cell:last-child { border-right: none; }
+.score-cell.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+}
+.score-cell.sc0.active::after { background: var(--azul-l); }
+.score-cell.sc1.active::after { background: var(--verde-l); }
+.score-cell.sc2.active::after { background: var(--amarillo-l); }
+.score-cell.sc3.active::after { background: var(--rojo-l); }
+.score-cell.sc4.active::after { background: var(--rosado-l); }
+.score-cell.active { background: rgba(255,255,255,0.03); }
+
+.sc-name {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.sc0 .sc-name { color: var(--azul-l); }
+.sc1 .sc-name { color: var(--verde-l); }
+.sc2 .sc-name { color: var(--amarillo-l); }
+.sc3 .sc-name { color: var(--rojo-l); }
+.sc4 .sc-name { color: var(--rosado-l); }
+
+.sc-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.sc0 .sc-pts { color: var(--azul-l); }
+.sc1 .sc-pts { color: var(--verde-l); }
+.sc2 .sc-pts { color: var(--amarillo-l); }
+.sc3 .sc-pts { color: var(--rojo-l); }
+.sc4 .sc-pts { color: var(--rosado-l); }
+
+/* ══════════════════════════════════
+   GAME BODY
+══════════════════════════════════ */
+.game-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 24px 40px;
+  max-width: 840px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.q-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.q-counter {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.turn-pill {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1px solid;
+}
+.tp0 { color: var(--azul-l); border-color: rgba(96,165,250,0.4); background: rgba(37,99,235,0.12); }
+.tp1 { color: var(--verde-l); border-color: rgba(52,211,153,0.4); background: rgba(5,150,105,0.12); }
+.tp2 { color: var(--amarillo-l); border-color: rgba(251,191,36,0.4); background: rgba(217,119,6,0.12); }
+.tp3 { color: var(--rojo-l); border-color: rgba(248,113,113,0.4); background: rgba(220,38,38,0.12); }
+.tp4 { color: var(--rosado-l); border-color: rgba(244,114,182,0.4); background: rgba(219,39,119,0.12); }
+
+.prog-track {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 4px;
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: var(--azul);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1), background 0.4s;
+}
+
+.q-text {
+  font-size: clamp(20px, 3.2vw, 30px);
+  font-weight: 700;
+  line-height: 1.42;
+  text-align: center;
+  margin-bottom: 36px;
+  color: var(--text);
+  animation: fadeSlide 0.35s ease both;
+}
+
+.opts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+  width: 100%;
+  margin-bottom: 22px;
+}
+@media(max-width:560px){ .opts-grid { grid-template-columns: 1fr; } }
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 20px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.35;
+  transition: all 0.18s;
+  animation: fadeSlide 0.35s ease both;
+}
+.opt:nth-child(1) { animation-delay: 0.05s; }
+.opt:nth-child(2) { animation-delay: 0.10s; }
+.opt:nth-child(3) { animation-delay: 0.15s; }
+.opt:nth-child(4) { animation-delay: 0.20s; }
+
+.opt:hover:not(:disabled) {
+  background: var(--card2);
+  border-color: rgba(96,165,250,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--verde-l); background: rgba(5,150,105,0.12); color: #6ee7b7; }
+.opt.wrong   { border-color: var(--rojo-l);  background: rgba(220,38,38,0.1);  color: #fca5a5; }
+
+.opt-key {
+  min-width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.opt:hover:not(:disabled) .opt-key { background: rgba(96,165,250,0.15); color: var(--azul-l); border-color: rgba(96,165,250,0.3); }
+.opt.correct .opt-key { background: rgba(5,150,105,0.25); color: #6ee7b7; border-color: rgba(52,211,153,0.4); }
+.opt.wrong   .opt-key { background: rgba(220,38,38,0.2);  color: #fca5a5; border-color: rgba(248,113,113,0.4); }
+
+.feedback {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  min-height: 50px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid transparent;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.feedback.ok   { background: rgba(5,150,105,0.1); border-color: rgba(52,211,153,0.3); color: #6ee7b7; }
+.feedback.fail { background: rgba(220,38,38,0.08); border-color: rgba(248,113,113,0.25); color: #fca5a5; }
+
+.next-btn {
+  padding: 13px 42px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+  letter-spacing: 0.5px;
+}
+.next-btn.show { display: inline-block; border-color: var(--azul-l); color: var(--azul-l); }
+.next-btn:hover { background: rgba(37,99,235,0.1); }
+
+/* ══════════════════════════════════
+   TIMER
+══════════════════════════════════ */
+.timer-fixed {
+  position: fixed;
+  top: 18px; right: 20px;
+  z-index: 99;
+  display: none;
+}
+.timer-fixed.show { display: block; }
+.timer-fixed svg { display: block; transform: rotate(-90deg); }
+.t-bg { fill: none; stroke: var(--border); stroke-width: 5; }
+.t-fg { fill: none; stroke: var(--azul-l); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.4s; }
+.t-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+/* ══════════════════════════════════
+   RESULTS
+══════════════════════════════════ */
+#results {
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px 56px;
+  background:
+    radial-gradient(ellipse at 25% 20%, rgba(37,99,235,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(219,39,119,0.06) 0%, transparent 55%);
+}
+
+.res-wrap { width: 100%; max-width: 700px; text-align: center; }
+
+.res-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 6px 18px;
+  border-radius: 100px;
+  margin-bottom: 18px;
+}
+.res-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 10vw, 88px);
+  letter-spacing: 5px;
+  line-height: 0.9;
+  margin-bottom: 48px;
+}
+
+/* Podium */
+.podium-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.pd-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  max-width: 130px;
+}
+.pd-name {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+.pd-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.pd-block {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: rgba(255,255,255,0.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.pd-rank1 .pd-block { height: 130px; background: linear-gradient(160deg,#fbbf24,#d97706); }
+.pd-rank2 .pd-block { height: 96px;  background: linear-gradient(160deg,#94a3b8,#64748b); }
+.pd-rank3 .pd-block { height: 70px;  background: linear-gradient(160deg,#cd7f32,#92400e); }
+
+/* Ranking table */
+.ranking-table {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  text-align: left;
+}
+.rt-head {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.rt-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background 0.15s;
+}
+.rt-row:last-child { border-bottom: none; }
+.rt-row:hover { background: rgba(255,255,255,0.02); }
+.rt-row.winner { background: rgba(251,191,36,0.05); }
+
+.rt-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--muted);
+}
+.rt-pos.gold { color: #fbbf24; }
+
+.rt-name-cell { display: flex; align-items: center; gap: 10px; }
+.rt-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.rt-name { font-size: 15px; font-weight: 700; }
+
+.rt-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  text-align: right;
+  letter-spacing: 1px;
+}
+
+.again-btn {
+  padding: 15px 52px;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 6px 28px rgba(37,99,235,0.4);
+}
+.again-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(37,99,235,0.5); }
+
+@keyframes fadeSlide {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOBBY ══ -->
+<div id="lobby" class="screen active">
+  <div class="lobby-wrap">
+    <div class="logo-row">
+      <div class="eyebrow">Universidad Mariano Gálvez · 2026</div>
+      <h1><span class="hi">Bases del Desarrollo Humano</span>COMPETENCIA<br>DE EQUIPOS</h1>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+    <button class="start-btn" onclick="startGame()">INICIAR COMPETENCIA</button>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game" class="screen">
+  <div class="scorebar" id="scorebar"></div>
+  <div class="game-body">
+    <div class="q-topbar">
+      <span class="q-counter" id="qCounter">PREGUNTA 1 / 10</span>
+      <span class="turn-pill" id="turnPill">TURNO: AZUL</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="q-text" id="qText"></div>
+    <div class="opts-grid" id="optsGrid"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Siguiente pregunta →</button>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div id="results" class="screen">
+  <div class="res-wrap">
+    <div class="res-eyebrow">Bases del Desarrollo Humano</div>
+    <div class="res-title">RESULTADOS<br>FINALES</div>
+    <div class="podium-row" id="podiumRow"></div>
+    <div class="ranking-table" id="rankingTable"></div>
+    <button class="again-btn" onclick="backToLobby()">JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<!-- Timer -->
+<div class="timer-fixed" id="timerFixed">
+  <svg width="68" height="68" viewBox="0 0 68 68">
+    <circle class="t-bg" cx="34" cy="34" r="28"/>
+    <circle class="t-fg" id="tArc" cx="34" cy="34" r="28" stroke-dasharray="175.9" stroke-dashoffset="0"/>
+  </svg>
+  <div class="t-num" id="tNum">15</div>
+</div>
+
+<script>
+/* ── DATA ── */
+const TEAMS = [
+  { name: 'Equipo Azul',     key: 'sc0', pill: 'tp0', hex: '#2563eb', light: '#60a5fa', cIdx: 0 },
+  { name: 'Equipo Verde',    key: 'sc1', pill: 'tp1', hex: '#059669', light: '#34d399', cIdx: 1 },
+  { name: 'Equipo Amarillo', key: 'sc2', pill: 'tp2', hex: '#d97706', light: '#fbbf24', cIdx: 2 },
+  { name: 'Equipo Rojo',     key: 'sc3', pill: 'tp3', hex: '#dc2626', light: '#f87171', cIdx: 3 },
+  { name: 'Equipo Rosado',   key: 'sc4', pill: 'tp4', hex: '#db2777', light: '#f472b6', cIdx: 4 },
+];
+
+const QS = [
+  { q: '¿Cuáles son los tres objetivos del Desarrollo Humano según la ONU?',
+    o: ['Vivir una vida larga y saludable, adquirir conocimiento y acceder a recursos',
+        'Crecimiento económico, industrialización y tecnología',
+        'Salud, seguridad pública y trabajo digno',
+        'Educación, vivienda y recreación familiar'], a: 0 },
+
+  { q: '¿Cuáles son los tres pilares del Desarrollo Humano?',
+    o: ['Fe, familia y trabajo productivo',
+        'Salud, educación y nivel de vida digno',
+        'Nutrición, vivienda y seguridad ciudadana',
+        'Derechos humanos, economía y cultura'], a: 1 },
+
+  { q: '¿Qué estudia la BASE BIOLÓGICA del desarrollo humano?',
+    o: ['Las emociones, el apego y los vínculos afectivos',
+        'La herencia genética y la maduración del organismo',
+        'El desarrollo del pensamiento y el lenguaje',
+        'Las normas culturales y los valores sociales'], a: 1 },
+
+  { q: '¿Con qué está relacionada la BASE AFECTIVA del desarrollo?',
+    o: ['El crecimiento físico y la nutrición',
+        'El desarrollo del pensamiento lógico',
+        'Las emociones, el apego y los vínculos con los cuidadores',
+        'Los valores culturales y las tradiciones'], a: 2 },
+
+  { q: '¿Qué autor propuso las etapas cognitivas del desarrollo humano?',
+    o: ['Lev Vygotsky','Erik Erikson','Jean Piaget','Manfred Max-Neef'], a: 2 },
+
+  { q: '¿Qué rango de edad abarca la etapa de la ADOLESCENCIA?',
+    o: ['6 a 11 años','12 a 18/20 años','20 a 35 años','0 a 5 años'], a: 1 },
+
+  { q: '¿Qué mide el Índice de Desarrollo Humano (IDH)?',
+    o: ['El producto interno bruto per cápita de un país',
+        'La estabilidad política y seguridad nacional',
+        'Salud (esperanza de vida), educación e ingreso',
+        'El nivel de industrialización de una nación'], a: 2 },
+
+  { q: '¿Qué propone MAX-NEEF sobre el desarrollo?',
+    o: ['Que solo importan los indicadores económicos',
+        'Que debe entenderse a escala humana, poniendo la economía al servicio de las personas',
+        'Que la genética determina por completo el desarrollo',
+        'Que la cultura no influye en el desarrollo individual'], a: 1 },
+
+  { q: '¿Por qué la FAMILIA es fundamental según las bases sociales?',
+    o: ['Porque genera ingresos económicos para el Estado',
+        'Porque es la unidad básica de socialización y desarrollo de la identidad',
+        'Porque depende exclusivamente del gobierno',
+        'Porque enseña únicamente habilidades académicas'], a: 1 },
+
+  { q: '¿Qué representa la BASE CULTURAL del desarrollo?',
+    o: ['Solo las manifestaciones artísticas de una comunidad',
+        'El sistema económico y tributario de un país',
+        'La infraestructura física y servicios públicos',
+        'Creencias, valores, tradiciones y normas que moldean la identidad de las personas'], a: 3 },
+];
+
+/* ── STATE ── */
+let teams = [], scores = [], currentQ = 0, currentTeam = 0;
+let answered = false, timerID = null, timeLeft = 15;
+const TOTAL = QS.length, SECS = 15, CIRC = 175.9;
+
+/* ── LOBBY ── */
+(function buildLobby() {
+  document.getElementById('teamsGrid').innerHTML = TEAMS.map((t, i) => `
+    <div class="team-setup-card c${i}">
+      <div class="team-color-dot"></div>
+      <div class="team-label">${t.name.split(' ')[1]}</div>
+      <input class="team-name-input" id="tn${i}" type="text" value="${t.name}" placeholder="${t.name}">
+    </div>`).join('');
+})();
+
+function startGame() {
+  teams = TEAMS.map((t, i) => document.getElementById('tn'+i).value.trim() || t.name);
+  scores = [0,0,0,0,0];
+  currentQ = 0; currentTeam = 0;
+  show('game');
+  renderBar();
+  loadQ();
+}
+
+/* ── SCREENS ── */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── SCOREBAR ── */
+function renderBar() {
+  document.getElementById('scorebar').innerHTML = teams.map((name, i) => `
+    <div class="score-cell sc${i} ${i===currentTeam?'active':''}" id="sc${i}">
+      <div class="sc-name">${name}</div>
+      <div class="sc-pts" id="sp${i}">${scores[i]}</div>
+    </div>`).join('');
+}
+function updateBar() {
+  teams.forEach((_, i) => {
+    document.getElementById('sc'+i).className = `score-cell sc${i}${i===currentTeam?' active':''}`;
+    document.getElementById('sp'+i).textContent = scores[i];
+  });
+}
+
+/* ── QUESTION ── */
+function loadQ() {
+  if (currentQ >= TOTAL) { showResults(); return; }
+  answered = false;
+
+  const q = QS[currentQ];
+  const pct = (currentQ / TOTAL) * 100;
+
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progFill').style.background = TEAMS[currentTeam].light;
+  document.getElementById('qCounter').textContent = `PREGUNTA ${currentQ+1} / ${TOTAL}`;
+
+  const pill = document.getElementById('turnPill');
+  pill.textContent = 'TURNO: ' + teams[currentTeam].toUpperCase();
+  pill.className = 'turn-pill ' + TEAMS[currentTeam].pill;
+
+  // Question
+  const qEl = document.getElementById('qText');
+  qEl.style.animation = 'none'; void qEl.offsetWidth; qEl.style.animation = '';
+  qEl.textContent = q.q;
+
+  // Options
+  const letters = ['A','B','C','D'];
+  document.getElementById('optsGrid').innerHTML = q.o.map((opt, i) => `
+    <button class="opt" id="op${i}" onclick="choose(${i})">
+      <span class="opt-key">${letters[i]}</span>${opt}
+    </button>`).join('');
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  startTimer();
+}
+
+function choose(idx) {
+  if (answered) return;
+  answered = true; stopTimer();
+
+  const correct = QS[currentQ].a;
+  const fb = document.getElementById('feedback');
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('op'+i);
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  }
+
+  if (idx === correct) {
+    scores[currentTeam] += 10;
+    fb.className = 'feedback ok';
+    fb.textContent = '¡Correcto! +10 puntos para ' + teams[currentTeam];
+  } else {
+    fb.className = 'feedback fail';
+    fb.textContent = 'Incorrecto. La respuesta correcta era: ' + QS[currentQ].o[correct];
+  }
+  updateBar();
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQ() {
+  currentQ++;
+  currentTeam = (currentTeam + 1) % 5;
+  updateBar();
+  loadQ();
+}
+
+/* ── TIMER ── */
+function startTimer() {
+  timeLeft = SECS;
+  document.getElementById('timerFixed').classList.add('show');
+  updateTimerUI();
+  timerID = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) { stopTimer(); if (!answered) timeUp(); }
+  }, 1000);
+}
+function stopTimer() {
+  clearInterval(timerID);
+  document.getElementById('timerFixed').classList.remove('show');
+}
+function updateTimerUI() {
+  const ratio = timeLeft / SECS;
+  const arc = document.getElementById('tArc');
+  arc.style.strokeDashoffset = CIRC * (1 - ratio);
+  arc.style.stroke = timeLeft <= 5 ? '#f87171' : TEAMS[currentTeam].light;
+  document.getElementById('tNum').textContent = timeLeft;
+}
+function timeUp() {
+  answered = true;
+  const correct = QS[currentQ].a;
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('op'+i).disabled = true;
+    if (i === correct) document.getElementById('op'+i).classList.add('correct');
+  }
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback fail';
+  fb.textContent = 'Tiempo agotado. La respuesta era: ' + QS[currentQ].o[correct];
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+/* ── RESULTS ── */
+function showResults() {
+  show('results');
+
+  const sorted = teams
+    .map((name, i) => ({ name, score: scores[i], hex: TEAMS[i].hex, light: TEAMS[i].light }))
+    .sort((a, b) => b.score - a.score);
+
+  // Podium: visual order 2nd | 1st | 3rd
+  const podiumOrder = [1, 0, 2];
+  const rankClass = ['pd-rank2', 'pd-rank1', 'pd-rank3'];
+  const medals = ['2', '1', '3'];
+  let podHtml = '';
+  podiumOrder.forEach((pi, vi) => {
+    const t = sorted[pi];
+    if (!t) return;
+    podHtml += `
+      <div class="pd-item ${rankClass[vi]}">
+        <div class="pd-name" style="color:${t.light}">${t.name}</div>
+        <div class="pd-pts" style="color:${t.light}">${t.score} pts</div>
+        <div class="pd-block">${medals[vi]}</div>
+      </div>`;
+  });
+  document.getElementById('podiumRow').innerHTML = podHtml;
+
+  // Full ranking table
+  document.getElementById('rankingTable').innerHTML = `
+    <div class="rt-head">
+      <div>#</div><div>Equipo</div><div style="text-align:right">Puntos</div>
+    </div>` +
+    sorted.map((t, i) => `
+      <div class="rt-row${i===0?' winner':''}">
+        <div class="rt-pos${i===0?' gold':''}">${i+1}</div>
+        <div class="rt-name-cell">
+          <div class="rt-dot" style="background:${t.hex}"></div>
+          <div class="rt-name">${t.name}</div>
+        </div>
+        <div class="rt-score" style="color:${t.light}">${t.score}</div>
+      </div>`).join('');
+}
+
+function backToLobby() {
+  show('lobby');
+}
+</script>
+</body>
+</html>
